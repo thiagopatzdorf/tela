@@ -9,10 +9,8 @@ import { dispatch, getSchema } from './commands'
  *   in : { source, type:'command', id, command:{ op, ...args } }
  *   out: { source, type:'command-result', id, result:{ ok, result?, error? } }
  *
- * This is an internal tool gated by the host app's auth; we require the SOURCE tag as a
- * light guard rather than pinning an origin (the iframe is same-origin in the host,
- * but a harness may drive it cross-origin). No command mutates auth/permissions,
- * so the blast radius is confined to the current design document.
+ * The production embed is same-origin. Commands from any other origin or window
+ * are rejected: a source tag is not an authentication boundary.
  */
 
 const SOURCE = 'tela-agent'
@@ -37,11 +35,12 @@ export function installAgentRpc(): () => void {
 
   const onMessage = async (e: MessageEvent) => {
     if (!isCommandMessage(e.data)) return
+    if (e.origin !== window.location.origin || e.source !== window.parent) return
     const source = e.source as Window | null
     const result = await dispatch(e.data.command)
     const reply = { source: SOURCE, type: 'command-result', id: e.data.id, result }
     // Reply to whoever asked (parent frame or opener).
-    source?.postMessage(reply, { targetOrigin: '*' })
+    source?.postMessage(reply, { targetOrigin: e.origin })
   }
 
   window.addEventListener('message', onMessage)

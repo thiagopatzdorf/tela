@@ -5,6 +5,8 @@
 // content bounding box, rewrites the viewBox to it (so the art fills the layer),
 // and returns a layer size that matches the art's real aspect ratio.
 
+import { sanitizeSvg } from '@/security/sanitizeSvg'
+
 const MAX_SIDE = 200
 
 export interface SvgIntrinsic {
@@ -41,6 +43,7 @@ function declaredSize(svg: SVGSVGElement): [number, number] | null {
  * viewBox/size, then to a square, if live measurement isn't available.
  */
 export function measureImportedSvg(svgContent: string): SvgIntrinsic {
+  svgContent = sanitizeSvg(svgContent)
   const fallback = (): SvgIntrinsic => ({ svgContent, width: MAX_SIDE, height: MAX_SIDE })
   if (typeof document === 'undefined') return fallback()
 
