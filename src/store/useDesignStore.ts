@@ -1,3 +1,4 @@
+import { namespacedStorageKey } from '@/security/storageNamespace'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { nanoid } from 'nanoid'
@@ -1061,7 +1062,7 @@ export const useDesignStore = create<DesignStore>()(
   },
     }),
     {
-      name: 'tela-design',
+      name: namespacedStorageKey('tela-design'),
       version: 3,
       partialize: (state) => ({
         document: state.document,

@@ -1,3 +1,4 @@
+import { namespacedStorageKey } from '@/security/storageNamespace'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { postCanvasAI } from '@/lib/aiApi'
@@ -49,7 +50,7 @@ export const useAIStore = create<AIStore>()(
       setLastError: (err) => set({ lastError: err }),
     }),
     {
-      name: 'tela-ai',
+      name: namespacedStorageKey('tela-ai'),
       partialize: (state) => ({
         model: state.model,
         productName: state.productName,
