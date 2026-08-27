@@ -8,7 +8,7 @@ import tailwindcss from '@tailwindcss/vite'
 // /studio/canvas), set `base` to that path.
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: process.env.VITE_BASE_PATH ?? '/',
+  base: process.env.VITE_BASE_PATH ?? './',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
