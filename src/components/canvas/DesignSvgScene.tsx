@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { useDesignStore } from '@/store/useDesignStore'
 import { applySvgColorOverrides, applySvgStrokeWidth } from '@/engine/svgColors'
+import { sanitizeSvg } from '@/security/sanitizeSvg'
 import { FONT_FAMILY } from '@/engine/textMeasure'
 import { getDrawPath, HIGHLIGHTER_OPACITY } from '@/engine/freehand'
 import { trianglePoints, starPoints, toPointsAttr, arrowHeadPoints } from '@/lib/geometry'
@@ -527,7 +528,7 @@ function SvgNode({ layer }: { layer: SvgLayer }) {
   // Apply recolour to the markup, then render it as real inline vector via an
   // HTML wrapper in <foreignObject> (scales crisply, stays editable vector).
   const html = useMemo(() => {
-    let svg = layer.svgContent
+    let svg = sanitizeSvg(layer.svgContent)
     const hasOverrides = !!layer.colorOverrides && Object.keys(layer.colorOverrides).length > 0
     if (hasOverrides) {
       const hexMap = Object.fromEntries(

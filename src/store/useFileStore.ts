@@ -1,3 +1,4 @@
+import { namespacedStorageKey } from '@/security/storageNamespace'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { nanoid } from 'nanoid'
@@ -230,6 +231,6 @@ export const useFileStore = create<FileStore>()(
       getSubFolders: (parentId) => get().folders.filter((f) => f.parentId === parentId),
       getScratchpad: () => get().files.find((f) => f.isScratchpad) ?? createScratchpadFile(),
     }),
-    { name: 'tela-files' },
+    { name: namespacedStorageKey('tela-files') },
   ),
 )

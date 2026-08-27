@@ -1,3 +1,4 @@
+import { namespacedStorageKey } from '@/security/storageNamespace'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { nanoid } from 'nanoid'
@@ -412,7 +413,7 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
       },
     }),
     {
-      name: 'tela-workspace',
+      name: namespacedStorageKey('tela-workspace'),
       version: 2,
       partialize: (state) => ({
         workspace: state.workspace,

@@ -1,3 +1,4 @@
+import { namespacedStorageKey } from '@/security/storageNamespace'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { nanoid } from 'nanoid'
@@ -320,7 +321,7 @@ export const useProjectStore = create<ProjectStore>()(
       },
     }),
     {
-      name: 'tela-projects',
+      name: namespacedStorageKey('tela-projects'),
     },
   ),
 )

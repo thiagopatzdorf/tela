@@ -1,3 +1,4 @@
+import { namespacedStorageKey } from '@/security/storageNamespace'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { nanoid } from 'nanoid'
@@ -129,7 +130,7 @@ export const useAssetStore = create<AssetStore>()(
       },
     }),
     {
-      name: 'tela-assets',
+      name: namespacedStorageKey('tela-assets'),
     },
   ),
 )
