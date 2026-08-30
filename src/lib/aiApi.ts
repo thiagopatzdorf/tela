@@ -34,6 +34,27 @@ export interface CanvasAIRequest {
   signal?: AbortSignal;
 }
 
+export interface TelaCommandsResponse {
+  commands: Array<{ op: string; [key: string]: unknown }>
+  discarded: unknown[]
+}
+
+const COMMAND_ENDPOINT = (import.meta.env.VITE_FACTORY_COMMANDS_ENDPOINT as string | undefined) ?? ""
+const COMMAND_KEY = (import.meta.env.VITE_FACTORY_TELA_API_KEY as string | undefined) ?? ""
+
+export async function requestTelaCommands(message: string, schema: unknown, state: unknown): Promise<TelaCommandsResponse> {
+  if (!COMMAND_ENDPOINT) throw new Error('A conexão com a Factory não está configurada.')
+  const response = await fetch(COMMAND_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(COMMAND_KEY ? { 'X-Factory-Tela-Key': COMMAND_KEY } : {}) },
+    credentials: 'include',
+    body: JSON.stringify({ message, schema, state }),
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(data.error || data.detail || `Request failed (${response.status})`)
+  return data as TelaCommandsResponse
+}
+
 /** POST to the configured AI endpoint. Credentials are included so a same-origin
  *  proxy can use session cookies; a cross-origin proxy must allow them via CORS. */
 export async function postCanvasAI(req: CanvasAIRequest): Promise<Response> {

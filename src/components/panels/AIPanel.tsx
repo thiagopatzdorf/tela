@@ -10,6 +10,8 @@ import type { ChatMessage } from '@/components/panels/ai/AIChatMessages'
 import { AIChatInput } from '@/components/panels/ai/AIChatInput'
 import type { QuickAction } from '@/components/panels/ai/AIChatInput'
 import { AISettingsInline } from '@/components/panels/ai/AISettingsInline'
+import { dispatch, getSchema } from '@/agent/commands'
+import { requestTelaCommands } from '@/lib/aiApi'
 
 // --- Build system prompt with canvas context ---
 
@@ -167,6 +169,23 @@ function ChatInterface({ onOpenSettings }: { onOpenSettings: () => void }) {
     abortRef.current = controller
 
     try {
+      // Fase 1: a Factory only proposes serializable commands; the browser is
+      // the sole executor. Validate once more against this build's schema so
+      // an unknown operation can never become an error on the user's canvas.
+      if (import.meta.env.VITE_FACTORY_COMMANDS_ENDPOINT) {
+        const snapshot = await dispatch({ op: 'getState' })
+        const proposal = await requestTelaCommands(text.trim(), getSchema(), snapshot.result ?? {})
+        const known = new Set((getSchema() as { commands: Array<{ op: string }> }).commands.map((c) => c.op))
+        const results = []
+        for (const command of proposal.commands) {
+          if (!known.has(command.op)) continue
+          results.push(await dispatch(command))
+        }
+        const dropped = proposal.discarded.length
+        const description = `Pronto — ${results.filter((r) => r.ok).length} ação(ões) aplicada(s).${dropped ? ` ${dropped} comando(s) desconhecido(s) foram descartado(s).` : ''}`
+        setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: description, ts: Date.now() }])
+        return
+      }
       const fullText = await streamAIResponse({
         model: ai.model,
         system: buildSystemPrompt(action),
