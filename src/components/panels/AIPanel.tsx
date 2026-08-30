@@ -182,7 +182,9 @@ function ChatInterface({ onOpenSettings }: { onOpenSettings: () => void }) {
           results.push(await dispatch(command))
         }
         const dropped = proposal.discarded.length
-        const description = `Pronto — ${results.filter((r) => r.ok).length} ação(ões) aplicada(s).${dropped ? ` ${dropped} comando(s) desconhecido(s) foram descartado(s).` : ''}`
+        const droppedNames = proposal.discarded.map((item) =>
+          item && typeof item === 'object' && 'op' in item ? String(item.op) : 'inválido').join(', ')
+        const description = `Pronto — ${results.filter((r) => r.ok).length} ação(ões) aplicada(s).${dropped ? ` Descartado(s): ${droppedNames}.` : ''}`
         setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: description, ts: Date.now() }])
         return
       }
